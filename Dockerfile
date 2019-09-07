@@ -1,13 +1,48 @@
-FROM i386/ubuntu
+FROM hackebein/srcds
 
-RUN apt-get update && apt-get install bzip2
+ENV \
+	SIGNALS_ENABLE="false" \
+	# App
+	APPS="4020" \
+	#
+	# API
+	# http://steamcommunity.com/dev/apikey
+	AUTHKEY="0B972EBD9B0A4178430A6798F47FD6B6" \
+	#
+	# Public access
+	# automatic via API
+	GLSTAPP="4000" \
+	# manual
+	# APPID: 4000
+	# http://steamcommunity.com/dev/managegameservers
+	GLST="C53DFABBFFB09A83EC71658BDC276B85" \
+	#
+	# Workshop (require API)
+	WORKSHOPCOLLECTIONID="1851312986" \
+	#
+	# Server config
+	TICKRATE="66" \
+	MAXPLAYERS="64" \
+	GAMEMODE="sandbox" \
+	GAMETYPE="0" \
+	MAP="gm_flatgrass" \
+	MAPGROUP="mg_active" \
+	CONFIG="server.cfg" \
+	#
+	# Other
+	CUSTOMPARAMETERS="" \
+	#
+	# Start parameters
+	SRCDSPARAMS="\
+		-game garrysmod \
+		-tickrate \${TICKRATE} \
+		-maxplayers \${MAXPLAYERS} \
+		-authkey \${AUTHKEY} \
+		+host_workshop_collection \${WORKSHOPCOLLECTIONID} \
+		+gamemode \${GAMEMODE} \
+		+map \${MAP} \
+		+servercfgfile \${CONFIG} \
+		\${CUSTOMPARAMETERS} \
+	"
 
-ADD http://ut-files.com/Entire_Server_Download/ut-server-436.tar.gz /var/tmp
-RUN tar -xzf /var/tmp/ut-server-436.tar.gz -C /opt
-ADD http://www.ut-files.com/Patches/utpgpatch451.tar.bz2 /var/tmp
-RUN tar -xjpf /var/tmp/utpgpatch451.tar.bz2 -C /opt/ut-server
-ADD UnrealTournament.ini /opt/ut-server/System/UnrealTournament.ini
-
-RUN chmod +x /opt/ut-server/ucc
-
-CMD ./opt/ut-server/ucc server -nohomedir
+COPY cfg $BASEDIR/garrysmod/cfg
